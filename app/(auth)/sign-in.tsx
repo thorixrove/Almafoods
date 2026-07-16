@@ -1,9 +1,10 @@
-import { View, Text, Button, Alert} from 'react-native'
+import { View, Text, Alert} from 'react-native'
 import { useState } from 'react'
 import { Link, router } from 'expo-router'
 import CustomInput from '../../components/CustomInput'
 import CustomButton from '../../components/CustomButton'
 import { signIn } from '../../lib/appwrite'
+import * as Sentry from "@sentry/react-native"
 
 
 const SignIn = () => {
@@ -25,6 +26,7 @@ const SignIn = () => {
 
     } catch (error: any) {
       Alert.alert("Error", error.message)
+      Sentry.captureEvent(error)
     } finally {
       setIsSubmitting(false)
     }
