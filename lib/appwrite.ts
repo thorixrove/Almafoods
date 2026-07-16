@@ -29,7 +29,7 @@ export const avatars = new Avatars(client)
 export const createuser = async ({ email, password, name}: CreateUserParams) => {
     try {
         const newAccount = await account.create(ID.unique(), email, password, name)
-        if(!newAccount) throw Error
+        if(!newAccount) throw new Error('Account creation failed')
         await signIn({email, password})
 
         const avatarUrl = avatars.getInitialsURL(name)
@@ -42,7 +42,7 @@ export const createuser = async ({ email, password, name}: CreateUserParams) => 
         )
 
     } catch (error) {
-        throw new Error(error as string )
+        throw new Error(error instanceof Error ? error.message : String(error))
     }
 }
 
@@ -50,14 +50,14 @@ export const signIn = async ({ email, password }: SignInParams) => {
     try {
         const session = await account.createEmailPasswordSession(email, password)
     } catch (error) {
-        throw new Error(error as string)
+        throw new Error(error instanceof Error ? error.message : String(error))
     }
 }
 
 export const getCurrentUser = async () => {
     try {
         const currentAccount = await account.get()
-        if(!currentAccount) throw Error
+        if(!currentAccount) throw new Error('Could not retrieve current account')
 
         const currentUser = await databases.listDocuments(
             appwriteconfig.databaseId,
@@ -65,11 +65,11 @@ export const getCurrentUser = async () => {
             [Query.equal("accountId", currentAccount.$id)]
         )
 
-        if(!currentUser) throw Error
+        if(!currentUser) throw new Error('Could not retrieve current user')
         return currentUser.documents[0]
     } catch (error) {
         console.log(error)
-        throw new Error(error as string)
+        throw new Error(error instanceof Error ? error.message : String(error))
     }
 }
 
