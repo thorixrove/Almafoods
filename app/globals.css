@@ -58,7 +58,7 @@
     }
 
     .menu-card {
-        @apply relative py-9 px-3.5 pt-24 flex items-center justify-end bg-white shadow-md shadow-black/10 rounded-3xl;
+        @apply relative py-8 px-3.5 flex flex-col items-center justify-between bg-white shadow-md shadow-black/10 rounded-3xl overflow-hidden;
     }
 
     .profile-field {

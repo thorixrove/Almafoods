@@ -1,0 +1,20 @@
+import { Text, TouchableOpacity, Image, Platform } from 'react-native'
+import { useCartStore } from '../store/cart.store'
+import { MenuItem } from '../type'
+
+const MenuCard = ({ item: { $id, image_url, name, price } }: { item: MenuItem }) => {
+  const { addItem } = useCartStore()
+
+  return (
+    <TouchableOpacity className="menu-card" style={Platform.OS === 'android' ? { elevation: 10, shadowColor: '#878787' } : {}}>
+        <Image source={{ uri: image_url }} className="size-32 mx-auto" resizeMode="contain" />
+        <Text className="text-center base-bold text-dark-100 mb-2 mt-3" numberOfLines={1}>{name}</Text>
+        <Text className="body-regular text-gray-200 mb-1">Mulai dari ${price}</Text>
+        <TouchableOpacity onPress={() => addItem({ id: $id, name, price, image_url, customizations: [] })}>
+            <Text className="paragraph-bold text-primary">Add to Cart +</Text>
+        </TouchableOpacity>
+    </TouchableOpacity>
+  )
+}
+
+export default MenuCard
