@@ -14,6 +14,7 @@ const TabBarIcon = ({ focused, icon, title}: TabBarIconProps) => (
    </View>
 )
 
+// CARA MSUK KE HOME SCREEN    const isAuthenticated = true
 export default function TabLayout() {
    const { isAuthenticated} = useAuthStore() 
 

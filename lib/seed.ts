@@ -1,4 +1,4 @@
-import { ID } from "react-native-appwrite";
+import { ID, Query } from "react-native-appwrite";
 import { Platform } from 'react-native';
 import * as FileSystem from 'expo-file-system/legacy';
 import { appwriteConfig, databases, storage } from "./appwrite";
@@ -36,30 +36,60 @@ interface DummyData {
 const data = dummyData as DummyData;
 
 async function clearAll(collectionId: string): Promise<void> {
-    const list = await databases.listDocuments({
-        databaseId: appwriteConfig.databaseId,
-        collectionId,
-    });
+    let hasMore = true;
 
-    await Promise.all(
-        list.documents.map((doc) =>
-            databases.deleteDocument({
-                databaseId: appwriteConfig.databaseId,
-                collectionId,
-                documentId: doc.$id,
-            })
-        )
-    );
+    while (hasMore) {
+        const list = await databases.listDocuments({
+            databaseId: appwriteConfig.databaseId,
+            collectionId,
+            queries: [Query.limit(100)],
+        });
+
+        if (list.documents.length === 0) {
+            hasMore = false;
+            break;
+        }
+
+        await Promise.all(
+            list.documents.map((doc) =>
+                databases.deleteDocument({
+                    databaseId: appwriteConfig.databaseId,
+                    collectionId,
+                    documentId: doc.$id,
+                })
+            )
+        );
+
+        if (list.documents.length < 100) {
+            hasMore = false;
+        }
+    }
 }
 
 async function clearStorage(): Promise<void> {
-    const list = await storage.listFiles({ bucketId: appwriteConfig.bucketId });
+    let hasMore = true;
 
-    await Promise.all(
-        list.files.map((file) =>
-            storage.deleteFile({ bucketId: appwriteConfig.bucketId, fileId: file.$id })
-        )
-    );
+    while (hasMore) {
+        const list = await storage.listFiles({
+            bucketId: appwriteConfig.bucketId,
+            queries: [Query.limit(100)],
+        });
+
+        if (list.files.length === 0) {
+            hasMore = false;
+            break;
+        }
+
+        await Promise.all(
+            list.files.map((file) =>
+                storage.deleteFile({ bucketId: appwriteConfig.bucketId, fileId: file.$id })
+            )
+        );
+
+        if (list.files.length < 100) {
+            hasMore = false;
+        }
+    }
 }
 
 // Upload manual lewat XMLHttpRequest, bypass fetch() bawaan Expo yang bermasalah
@@ -98,9 +128,6 @@ function uploadFileViaXHR(
     });
 }
 
-
-
-
 async function uploadImageToStorage(imageUrl: string) {
     const filename = imageUrl.split("/").pop()?.split("?")[0] || `file-${Date.now()}.jpg`;
     const localUri = FileSystem.cacheDirectory + filename;
@@ -125,17 +152,15 @@ async function uploadImageToStorage(imageUrl: string) {
     return fileUrl;
 }
 
-
-
-
-
 async function seed(): Promise<void> {
+    // 1. Clear all
     await clearAll(appwriteConfig.categoriesCollectionId);
     await clearAll(appwriteConfig.customizationsCollectionId);
     await clearAll(appwriteConfig.menuCollectionId);
     await clearAll(appwriteConfig.menuCustomizationsCollectionId);
     await clearStorage();
 
+    // 2. Create Categories
     const categoryMap: Record<string, string> = {};
     for (const cat of data.categories) {
         const doc = await databases.createDocument({
@@ -147,6 +172,7 @@ async function seed(): Promise<void> {
         categoryMap[cat.name] = doc.$id;
     }
 
+    // 3. Create Customizations
     const customizationMap: Record<string, string> = {};
     for (const cus of data.customizations) {
         const doc = await databases.createDocument({
@@ -162,6 +188,7 @@ async function seed(): Promise<void> {
         customizationMap[cus.name] = doc.$id;
     }
 
+    // 4. Create Menu Items
     const menuMap: Record<string, string> = {};
     for (const item of data.menu) {
         const uploadedImage = await uploadImageToStorage(item.image_url);
@@ -184,6 +211,7 @@ async function seed(): Promise<void> {
 
         menuMap[item.name] = doc.$id;
 
+        // 5. Create menu_customizations
         for (const cusName of item.customizations) {
             await databases.createDocument({
                 databaseId: appwriteConfig.databaseId,

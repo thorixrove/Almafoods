@@ -37,7 +37,8 @@ export const createuser = async ({ email, password, name }: CreateUserParams) =>
         if (!newAccount) throw new Error("Failed to create account")
         await signIn({ email, password })
 
-        const avatarUrl = avatars.getInitials({ name })
+        // Bangun URL avatar manual, bukan pakai avatars.getInitials() (yang fetch bytes, bukan URL)
+        const avatarUrl = `${appwriteConfig.endpoint}/avatars/initials?name=${encodeURIComponent(name)}&project=${appwriteConfig.projectId}`
 
         return await databases.createDocument({
             databaseId: appwriteConfig.databaseId,
@@ -52,6 +53,13 @@ export const createuser = async ({ email, password, name }: CreateUserParams) =>
 
 export const signIn = async ({ email, password }: SignInParams) => {
     try {
+        // Hapus session aktif dulu kalau ada, biar tidak bentrok
+        try {
+            await account.deleteSession({ sessionId: 'current' })
+        } catch (e) {
+            // Abaikan error kalau memang tidak ada session aktif
+        }
+
         const session = await account.createEmailPasswordSession({ email, password })
         return session
     } catch (error) {
