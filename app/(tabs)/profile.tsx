@@ -4,8 +4,6 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
-  Modal,
-  TextInput,
   Alert,
   ActivityIndicator,
 } from 'react-native'
@@ -17,28 +15,8 @@ import useAuthStore from '../../store/auth.store'
 import { signOut, updateUser, uploadAvatarImage } from '../../lib/appwrite'
 import CustomHeader from '../../components/CustomHeader'
 import CustomButton from '../../components/CustomButton'
-
-const ProfileInfoRow = ({
-  icon,
-  label,
-  value,
-}: {
-  icon: any
-  label: string
-  value?: string
-}) => (
-  <View className="flex-row items-center gap-x-4 px-5 py-3  border-white">
-    <View className="size-12 rounded-full bg-primary/10 items-center justify-center">
-      <Image source={icon} className="size-5" resizeMode="contain" />
-    </View>
-    <View className="flex-1">
-      <Text className="small-bold text-gray-100">{label}</Text>
-      <Text className="base-medium text-dark-100 mt-0.5">
-        {value && value.length > 0 ? value : 'Belum diisi'}
-      </Text>
-    </View>
-  </View>
-)
+import ProfileInfoRow from '../../components/ProfileInfoRow'
+import EditProfileModal from '../../components/EditProfileModal'
 
 const Profile = () => {
   const router = useRouter()
@@ -210,21 +188,9 @@ const Profile = () => {
 
         {/* Info card */}
         <View className="rounded-2xl bg-white border border-white overflow-hidden">
-          <ProfileInfoRow
-            icon={images.user}
-            label="Full Name"
-            value={user?.name}
-          />
-          <ProfileInfoRow
-            icon={images.envelope}
-            label="Email"
-            value={user?.email}
-          />
-          <ProfileInfoRow
-            icon={images.phone}
-            label="Phone number"
-            value={user?.phone}
-          />
+          <ProfileInfoRow icon={images.user} label="Full Name" value={user?.name} />
+          <ProfileInfoRow icon={images.envelope} label="Email" value={user?.email} />
+          <ProfileInfoRow icon={images.phone} label="Phone number" value={user?.phone} />
           <ProfileInfoRow
             icon={images.location}
             label="Address 1 - (Home)"
@@ -264,72 +230,20 @@ const Profile = () => {
         />
       </ScrollView>
 
-      {/* Edit Profile Modal */}
-      <Modal
+      <EditProfileModal
         visible={isEditVisible}
-        animationType="slide"
-        transparent
-        onRequestClose={() => setIsEditVisible(false)}
-      >
-        <View className="flex-1 justify-end bg-black/40">
-          <View className="bg-white rounded-t-3xl px-5 pt-6 pb-10">
-            <Text className="h3-bold text-dark-100 mb-4">Edit Profile</Text>
-
-            <Text className="small-bold text-gray-100 mb-1">Full Name</Text>
-            <TextInput
-              value={name}
-              onChangeText={setName}
-              placeholder="Nama lengkap"
-              className="border border-gray-200 rounded-xl px-4 py-3 mb-4 base-regular text-dark-100"
-            />
-
-            <Text className="small-bold text-gray-100 mb-1">
-              Phone number
-            </Text>
-            <TextInput
-              value={phone}
-              onChangeText={setPhone}
-              placeholder="+62 812 3456 7890"
-              keyboardType="phone-pad"
-              className="border border-gray-200 rounded-xl px-4 py-3 mb-4 base-regular text-dark-100"
-            />
-
-            <Text className="small-bold text-gray-100 mb-1">
-              Address 1 - (Home)
-            </Text>
-            <TextInput
-              value={addressHome}
-              onChangeText={setAddressHome}
-              placeholder="Alamat rumah"
-              className="border border-gray-200 rounded-xl px-4 py-3 mb-4 base-regular text-dark-100"
-            />
-
-            <Text className="small-bold text-gray-100 mb-1">
-              Address 2 - (Work)
-            </Text>
-            <TextInput
-              value={addressWork}
-              onChangeText={setAddressWork}
-              placeholder="Alamat kantor"
-              className="border border-gray-200 rounded-xl px-4 py-3 mb-6 base-regular text-dark-100"
-            />
-
-            <CustomButton
-              title={isSaving ? 'Menyimpan...' : 'Simpan'}
-              onPress={handleSaveProfile}
-              isLoading={isSaving}
-              style="bg-primary"
-            />
-
-            <TouchableOpacity
-              onPress={() => setIsEditVisible(false)}
-              className="mt-3 items-center"
-            >
-              <Text className="base-medium text-gray-100">Batal</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
+        onClose={() => setIsEditVisible(false)}
+        isSaving={isSaving}
+        name={name}
+        setName={setName}
+        phone={phone}
+        setPhone={setPhone}
+        addressHome={addressHome}
+        setAddressHome={setAddressHome}
+        addressWork={addressWork}
+        setAddressWork={setAddressWork}
+        onSave={handleSaveProfile}
+      />
     </View>
   )
 }

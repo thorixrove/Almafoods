@@ -94,7 +94,21 @@ export const signIn = async ({ email, password }: SignInParams) => {
 
 export const getCurrentUser = async () => {
     try {
-        const currentAccount = await account.get()
+        let currentAccount
+        try {
+            currentAccount = await account.get()
+        } catch (error) {
+            const message = error instanceof Error ? error.message : String(error)
+            // Kadang session yang baru dibuat butuh sesaat untuk "nempel"
+            // di client (race condition), jadi coba sekali lagi setelah delay singkat.
+            if (message.toLowerCase().includes("scope") || message.toLowerCase().includes("guests")) {
+                await new Promise((resolve) => setTimeout(resolve, 400))
+                currentAccount = await account.get()
+            } else {
+                throw error
+            }
+        }
+
         if (!currentAccount) throw new Error("No current account")
 
         const currentUser = await databases.listDocuments({
