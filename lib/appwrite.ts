@@ -44,7 +44,15 @@ export const createuser = async ({ email, password, name }: CreateUserParams) =>
             databaseId: appwriteConfig.databaseId,
             collectionId: appwriteConfig.userCollectionId,
             documentId: ID.unique(),
-            data: { email, name, accountId: newAccount.$id, avatar: avatarUrl },
+            data: {
+                email,
+                name,
+                accountId: newAccount.$id,
+                avatar: avatarUrl,
+                phone: "",
+                address1: "",
+                address2: "",
+            },
         })
     } catch (error) {
         throw new Error(error instanceof Error ? error.message : String(error))
@@ -53,17 +61,34 @@ export const createuser = async ({ email, password, name }: CreateUserParams) =>
 
 export const signIn = async ({ email, password }: SignInParams) => {
     try {
-        // Hapus session aktif dulu kalau ada, biar tidak bentrok
-        try {
-            await account.deleteSession({ sessionId: 'current' })
-        } catch (e) {
-            // Abaikan error kalau memang tidak ada session aktif
-        }
-
         const session = await account.createEmailPasswordSession({ email, password })
         return session
     } catch (error) {
-        throw new Error(error instanceof Error ? error.message : String(error))
+        const message = error instanceof Error ? error.message : String(error)
+        console.log("signIn first attempt failed:", message)
+
+        // Kalau errornya spesifik karena masih ada session aktif,
+        // hapus SEMUA session dulu baru coba login ulang sekali.
+        if (message.toLowerCase().includes("session is active")) {
+            try {
+                await account.deleteSessions()
+                console.log("deleteSessions success, retrying login...")
+            } catch (deleteError) {
+                console.log("deleteSessions failed:", deleteError)
+            }
+
+            try {
+                const retrySession = await account.createEmailPasswordSession({ email, password })
+                return retrySession
+            } catch (retryError) {
+                console.log("signIn retry failed:", retryError)
+                throw new Error(
+                    retryError instanceof Error ? retryError.message : String(retryError)
+                )
+            }
+        }
+
+        throw new Error(message)
     }
 }
 
@@ -100,6 +125,83 @@ export const getMenu = async ({ category, query }: GetMenuParams) => {
         })
 
         return menus.documents
+    } catch (error) {
+        throw new Error(error instanceof Error ? error.message : String(error))
+    }
+}
+
+export const signOut = async () => {
+    try {
+        await account.deleteSessions()
+    } catch (error) {
+        throw new Error(error instanceof Error ? error.message : String(error))
+    }
+}
+
+// Catatan: collection "user" saat ini hanya punya field name, email, accountId, avatar.
+// Kalau mau field phone/address ikut tersimpan di Appwrite, tambahkan attribute-nya dulu
+// di console Appwrite (collection: user), lalu masukkan ke object "data" di bawah ini.
+// Upload foto profil baru ke Storage lalu update field "avatar" di dokumen user.
+// "file" harus berbentuk { name, type, size, uri } sesuai hasil dari expo-image-picker.
+export const uploadAvatarImage = async ({
+    file,
+    documentId,
+}: {
+    file: { name: string; type: string; size: number; uri: string }
+    documentId: string
+}) => {
+    try {
+        const uploadedFile = await storage.createFile({
+            bucketId: appwriteConfig.bucketId,
+            fileId: ID.unique(),
+            file,
+        })
+
+        // Bangun URL manual (pola sama seperti avatar initials di createuser),
+        // supaya konsisten dan tidak tergantung versi SDK.
+        const avatarUrl = `${appwriteConfig.endpoint}/storage/buckets/${appwriteConfig.bucketId}/files/${uploadedFile.$id}/view?project=${appwriteConfig.projectId}`
+
+        const updatedUser = await databases.updateDocument({
+            databaseId: appwriteConfig.databaseId,
+            collectionId: appwriteConfig.userCollectionId,
+            documentId,
+            data: { avatar: avatarUrl },
+        })
+
+        return updatedUser
+    } catch (error) {
+        throw new Error(error instanceof Error ? error.message : String(error))
+    }
+}
+
+export const updateUser = async ({
+    documentId,
+    name,
+    phone,
+    address1,
+    address2,
+}: {
+    documentId: string
+    name: string
+    phone?: string
+    address1?: string
+    address2?: string
+}) => {
+    try {
+        // Update nama di Appwrite Account (untuk sesi/auth)
+        await account.updateName({ name })
+
+        // Update dokumen user di database
+        // Pastikan attribute phone, address1, address2 sudah dibuat
+        // di collection "user" lewat Appwrite Console sebelum pakai ini.
+        const updatedUser = await databases.updateDocument({
+            databaseId: appwriteConfig.databaseId,
+            collectionId: appwriteConfig.userCollectionId,
+            documentId,
+            data: { name, phone, address1, address2 },
+        })
+
+        return updatedUser
     } catch (error) {
         throw new Error(error instanceof Error ? error.message : String(error))
     }

@@ -17,7 +17,10 @@
       },
       "predictiveBackGestureEnabled": false,
       "softwareKeyboardLayoutMode": "resize",
-      "package": "com.thorixrover.almafoods"
+      "package": "com.thorixrover.almafoods",
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -41,11 +44,27 @@
           "project": "almafoods",
           "organization": "alamanatra"
         }
-      ]
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Aplikasi ini butuh akses galeri untuk mengganti foto profil kamu."
+        }
+      ],
+      "@sentry/react-native",
+      "expo-image",
+      "expo-status-bar",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "d6b91219-f698-431d-af85-de42ab3ea4e2"
+      }
     }
   }
 }

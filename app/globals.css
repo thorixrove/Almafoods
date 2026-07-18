@@ -42,7 +42,7 @@
     }
 
     .custom-header {
-        @apply w-full flex flex-row items-center justify-between mb-10;
+        @apply w-full flex flex-row items-center justify-between mb-10 pt-2;
     }
 
     .label {

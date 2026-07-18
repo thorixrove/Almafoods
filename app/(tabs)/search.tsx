@@ -18,7 +18,7 @@ const Search = () => {
 
   useEffect(() => {
     refetch({ category, query, limit: 6})
-  }, [categories, query])
+  }, [category, query])
 
 
   return (

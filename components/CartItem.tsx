@@ -45,7 +45,7 @@ const CartItem = ({item}: {item: CartItemType}) => {
             className="cart-item__actions"
             >
               <Image
-              source={images.minus}
+              source={images.plus}
               className="size-1/2"
               resizeMode="contain"
               tintColor={"#FF9C01"}

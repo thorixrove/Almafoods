@@ -1,5 +1,17 @@
 import { Models } from "react-native-appwrite";
 
+
+export type User = {
+  $id: string
+  name: string
+  email: string
+  avatar: string
+  accountId: string
+  phone?: string        // tambahkan
+  address1?: string     // tambahkan
+  address2?: string     // tambahkan
+}
+
 export interface MenuItem extends Models.Document {
     name: string;
     price: number;
