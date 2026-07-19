@@ -151,6 +151,7 @@ const Profile = () => {
 
   return (
     <View className="flex-1 bg-white">
+      
       <CustomHeader title="Profile" />
 
       <ScrollView

@@ -144,6 +144,39 @@ export const getMenu = async ({ category, query }: GetMenuParams) => {
     }
 }
 
+// BARU: ambil 1 menu item spesifik berdasarkan ID, dipakai di halaman Detail.
+// Param dibungkus object ({ id }) supaya polanya konsisten dengan getMenu/getCategories,
+// sehingga bisa langsung dipakai lewat useAppwrite({ fn: getMenuById, params: { id } }).
+export const getMenuById = async ({ id }: { id: string }) => {
+    try {
+        const menuItem = await databases.getDocument({
+            databaseId: appwriteConfig.databaseId,
+            collectionId: appwriteConfig.menuCollectionId,
+            documentId: id,
+        })
+
+        return menuItem
+    } catch (error) {
+        throw new Error(error instanceof Error ? error.message : String(error))
+    }
+}
+
+// BARU: ambil semua customization (topping & side/"bagian") yang tersedia.
+// Dipakai sebagai fallback di halaman Detail kalau menu item tidak punya
+// relasi "customizations" sendiri.
+export const getCustomizations = async () => {
+    try {
+        const customizations = await databases.listDocuments({
+            databaseId: appwriteConfig.databaseId,
+            collectionId: appwriteConfig.customizationsCollectionId,
+        })
+
+        return customizations.documents
+    } catch (error) {
+        throw new Error(error instanceof Error ? error.message : String(error))
+    }
+}
+
 export const signOut = async () => {
     try {
         await account.deleteSessions()

@@ -1,12 +1,18 @@
 import { Text, TouchableOpacity, Image, Platform } from 'react-native'
+import { useRouter } from 'expo-router'
 import { useCartStore } from '../store/cart.store'
 import { MenuItem } from '../type'
 
 const MenuCard = ({ item: { $id, image_url, name, price } }: { item: MenuItem }) => {
   const { addItem } = useCartStore()
+  const router = useRouter()
 
   return (
-    <TouchableOpacity className="menu-card" style={Platform.OS === 'android' ? { elevation: 10, shadowColor: '#878787' } : {}}>
+    <TouchableOpacity
+      className="menu-card"
+      style={Platform.OS === 'android' ? { elevation: 10, shadowColor: '#878787' } : {}}
+      onPress={() => router.push(`/product/${$id}`)}
+    >
         <Image source={{ uri: image_url }} className="size-32 mx-auto" resizeMode="contain" />
         <Text className="text-center base-bold text-dark-100 mb-2 mt-3" numberOfLines={1}>{name}</Text>
         <Text className="body-regular text-gray-200 mb-1">Mulai dari ${price}</Text>

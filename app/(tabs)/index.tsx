@@ -1,14 +1,37 @@
 import cn from "clsx";
-import { FlatList, Image, Pressable, Text, TouchableOpacity, View } from "react-native";
+import { Alert, FlatList, Image, Pressable, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Fragment } from "react/jsx-runtime";
+import { useRouter } from "expo-router";
 import CartButton from "../../components/CartButton";
 import { images, offers } from "../../constants";
 import useAuthStore from "../../store/auth.store";
+import { getMenu } from "../../lib/appwrite";
+import useAppwrite from "../../lib/useAppwrite";
+import { MenuItem } from "../../type";
 
 export default function Index() {
   const { user} = useAuthStore()
+  const router = useRouter()
 
+  // Ambil semua menu sekali di awal, dipakai untuk mencari menu item
+  // yang cocok saat salah satu offer card di Home ditekan.
+  const { data: menu } = useAppwrite<MenuItem[], { category: string; query: string }>({
+    fn: getMenu,
+    params: { category: "", query: "" },
+  })
+
+  const handleOfferPress = (searchQuery: string) => {
+    const matched = menu?.find((item) =>
+      item.name.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+
+    if (matched) {
+      router.push(`/product/${matched.$id}`)
+    } else {
+      Alert.alert("Info", "Menu untuk promo ini belum tersedia")
+    }
+  }
 
   
   // Console log (bisa dihapus)
@@ -33,6 +56,7 @@ export default function Index() {
             className={cn("offer-card h-40", isEven ? "flex-row-reverse " : "flex-row")}
             style={{ backgroundColor: item.color}}
             android_ripple={{ color: "#fffff22"}}
+            onPress={() => handleOfferPress(item.searchQuery)}
             >
               {({pressed}) => (
                 <Fragment>
@@ -76,5 +100,3 @@ export default function Index() {
     </SafeAreaView>
   );
 }
-
-

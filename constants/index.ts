@@ -64,30 +64,37 @@ export const CATEGORIES = [
     },
 ];
 
+// BARU: tambah "searchQuery" di tiap offer. Ini dipakai di Home (index.tsx)
+// untuk mencari 1 menu item yang namanya cocok, lalu diarahkan ke halaman Detail.
+// Ganti nilai searchQuery ini kalau nama menu di Appwrite kamu beda.
 export const offers = [
     {
         id: 1,
         title: "SUMMER COMBO",
         image: burgerOne,
         color: "#D33B0D",
+        searchQuery: "burger",
     },
     {
         id: 2,
         title: "BURGER BASH",
         image: burgerTwo,
         color: "#DF5A0C",
+        searchQuery: "burger",
     },
     {
         id: 3,
         title: "PIZZA PARTY",
         image: pizzaOne,
         color: "#084137",
+        searchQuery: "pizza",
     },
     {
         id: 4,
         title: "BURRITO DELIGHT",
         image: buritto,
         color: "#EB920C",
+        searchQuery: "burrito",
     },
 ];
 

@@ -12,6 +12,13 @@ export type User = {
   address2?: string     // tambahkan
 }
 
+// BARU: representasi satu customization (topping / side) dari Appwrite
+export interface Customization extends Models.Document {
+    name: string;
+    price: number;
+    type: string; // "topping" | "bagian"
+}
+
 export interface MenuItem extends Models.Document {
     name: string;
     price: number;
@@ -21,6 +28,10 @@ export interface MenuItem extends Models.Document {
     protein: number;
     rating: number;
     type: string;
+    // BARU: opsional, dipakai kalau collection "menu" punya relasi ke customizations.
+    // Kalau relasi ini tidak ada di Appwrite-mu, field ini akan undefined dan
+    // halaman detail otomatis fallback ke semua customization yang tersedia.
+    customizations?: Customization[];
 }
 
 export interface Category extends Models.Document {
@@ -116,4 +127,9 @@ interface SignInParams {
 interface GetMenuParams {
     category: string;
     query: string;
+}
+
+// BARU: params untuk getMenuById
+interface GetMenuByIdParams {
+    id: string;
 }
