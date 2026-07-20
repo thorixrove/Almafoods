@@ -20,6 +20,7 @@ const SearchBar = () => {
 
   return(
     <View className="searchbar">
+      
       <TextInput
           className="flex-1 p-5"
           placeholder="Pencarian untuk pizzas, burgers..."

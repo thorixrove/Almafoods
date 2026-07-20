@@ -176,44 +176,50 @@ const MenuDetails = () => {
       </ScrollView>
 
       {/* Bottom bar (quantity selector + tombol Add to Cart)*/}
-       <View
-        className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-5 pt-4 flex-row items-center gap-4"
-        style={{ paddingBottom: insets.bottom + 12 }}
-      >
-
-        
-        {/* Quantity Selector */}
-        <View className="flex-row items-center gap-4 bg-gray-100 rounded-full px-3 py-2">
+{/* Bottom bar (quantity selector + tombol Add to Cart)*/}
+<View
+  className="absolute bottom-0 left-0 right-0 mx-5 mb-12 bg-white rounded-full px-3 py-2 flex-row items-center gap-4"
+  style={{
+    paddingBottom: insets.bottom > 0 ? insets.bottom / 4 : 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    elevation: 4,
+  }}
+>
+  {/* Quantity Selector */}
+        <View className="flex-row items-center gap-4 bg-white rounded-full px-3 py-2">
           <TouchableOpacity
             onPress={() => setQuantity((q) => Math.max(1, q - 1))}
-            className="size-8 rounded-full bg-white items-center justify-center"
+            className="size-8 rounded-full bg-primary/10 items-center justify-center"
           >
             <Image source={images.minus} className="size-3" resizeMode="contain" />
           </TouchableOpacity>
           <Text className="paragraph-bold text-dark-100">{quantity}</Text>
           <TouchableOpacity
             onPress={() => setQuantity((q) => q + 1)}
-            className="size-8 rounded-full bg-white items-center justify-center"
+            className="size-8 rounded-full bg-primary/10 items-center justify-center"
           >
             <Image source={images.plus} className="size-3" resizeMode="contain" />
           </TouchableOpacity>
         </View>
 
-        {/* Add to Cart Button */}
-        <CustomButton
-          title={`Add to Cart ($${totalPrice.toFixed(2)})`}
-          style="flex-1 bg-[#FE8C00]"
-          onPress={handleAddToCart}
-          leftIcon={
-            <Image
-              source={images.bag}
-              className="size-5 mr-2"
-              resizeMode="contain"
-              tintColor="#ffffff"
-            />
-          }
-        />
-      </View>
+  {/* Add to Cart Button */}
+  <CustomButton
+    title={`Add to Cart ($${totalPrice.toFixed(2)})`}
+    style="flex-1 bg-[#FE8C00] rounded-full"
+    onPress={handleAddToCart}
+    leftIcon={
+      <Image
+        source={images.bag}
+        className="size-5 mr-2"
+        resizeMode="contain"
+        tintColor="#ffffff"
+      />
+    }
+  />
+</View>
     </SafeAreaView>
   )
 }

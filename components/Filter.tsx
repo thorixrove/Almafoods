@@ -20,12 +20,13 @@ const Filter = ({ categories}: {categories: Category[]}) => {
   : [{ $id: "all", name: "All"}]
 
   return (
+    
     <FlatList
     data={filterData}
     keyExtractor={(item) => item.$id}
     horizontal
     showsHorizontalScrollIndicator={false}
-    contentContainerClassName='gap-x-2 pb-3'
+    contentContainerClassName='gap-x-2 px-5 pt-1 pb-3'
     renderItem={({ item }) => (
       <TouchableOpacity
       key={item.$id}

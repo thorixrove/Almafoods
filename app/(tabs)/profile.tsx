@@ -152,13 +152,17 @@ const Profile = () => {
   return (
     <View className="flex-1 bg-white">
       
-      <CustomHeader title="Profile" />
+      
 
       <ScrollView
         className="flex-1"
         contentContainerClassName="pb-28 px-5 pt-4"
         showsVerticalScrollIndicator={false}
       >
+        <View className="mt-3">
+        <CustomHeader title="Profile" />
+        </View>
+
         {/* Avatar */}
         <View className="items-center mt-2 mb-6">
           <View className="relative">
@@ -167,6 +171,8 @@ const Profile = () => {
               className="size-28 rounded-full"
               resizeMode="cover"
             />
+
+            
             {isUploadingAvatar && (
               <View className="absolute inset-0 rounded-full bg-black/40 items-center justify-center">
                 <ActivityIndicator size="small" color="#ffffff" />
