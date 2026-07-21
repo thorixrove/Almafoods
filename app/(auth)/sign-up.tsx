@@ -3,12 +3,16 @@ import { useState } from 'react'
 import { Link, router } from 'expo-router'
 import CustomInput from '../../components/CustomInput'
 import CustomButton from '../../components/CustomButton'
+import LoginSuccessModal from '../../components/LoginSuccessModal'
 import { createuser } from '../../lib/appwrite'
+import useAuthStore from '../../store/auth.store'
 
 
 const SignUp = () => {
   const[isSubmitting, setIsSubmitting] = useState(false)
+  const [showSuccess, setShowSuccess] = useState(false)
   const [form, setForm] = useState({ name: "",email: "", password: ""})
+  const { fetchAuthenticatedUser } = useAuthStore()
 
   const submit = async () => {
     const { name, email, password} = form
@@ -22,14 +26,24 @@ const SignUp = () => {
         password,
         name
       })
-      
-      router.replace("/")
+
+      setShowSuccess(true)
 
     } catch (error: any) {
       Alert.alert("Error", error.message)
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  const handleContinue = async () => {
+    setShowSuccess(false)
+    await fetchAuthenticatedUser()
+    router.replace("/")
+  }
+
+  const handleCancel = () => {
+    setShowSuccess(false)
   }
 
 
@@ -73,6 +87,8 @@ const SignUp = () => {
           <Text className="base-bold text-primary">Sign In</Text>
         </Link>
        </View>
+
+       <LoginSuccessModal visible={showSuccess} onContinue={handleContinue} onCancel={handleCancel} />
     </View>
   )
 

@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { Link, router } from 'expo-router'
 import CustomInput from '../../components/CustomInput'
 import CustomButton from '../../components/CustomButton'
+import LoginSuccessModal from '../../components/LoginSuccessModal'
 import { signIn } from '../../lib/appwrite'
 import useAuthStore from '../../store/auth.store'
 import * as Sentry from "@sentry/react-native"
@@ -10,6 +11,7 @@ import * as Sentry from "@sentry/react-native"
 
 const SignIn = () => {
   const[isSubmitting, setIsSubmitting] = useState(false)
+  const [showSuccess, setShowSuccess] = useState(false)
   const [form, setForm] = useState({ email: "", password: ""})
   const { fetchAuthenticatedUser } = useAuthStore()
 
@@ -24,8 +26,7 @@ const SignIn = () => {
               email,
               password
             })
-      await fetchAuthenticatedUser()
-      router.replace("/")
+      setShowSuccess(true)
 
     } catch (error: any) {
       Alert.alert("Error", error.message)
@@ -33,6 +34,16 @@ const SignIn = () => {
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  const handleContinue = async () => {
+    setShowSuccess(false)
+    await fetchAuthenticatedUser()
+    router.replace("/")
+  }
+
+  const handleCancel = () => {
+    setShowSuccess(false)
   }
 
 
@@ -68,6 +79,8 @@ const SignIn = () => {
           <Text className="base-bold text-primary">Sign Up</Text>
         </Link>
        </View>
+
+       <LoginSuccessModal visible={showSuccess} onContinue={handleContinue} onCancel={handleCancel} />
     </View>
   )
 

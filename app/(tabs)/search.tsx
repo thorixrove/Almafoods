@@ -9,6 +9,7 @@ import MenuCard from "../../components/MenuCard"
 import { MenuItem } from "../../type"
 import Filter from "../../components/Filter"
 import SearchBar from "../../components/SearchBar"
+import EmptySearch from "../../components/EmptySearch"
 import useAppwrite from "../../lib/useAppwrite"
 
 const Search = () => {
@@ -56,7 +57,7 @@ const Search = () => {
       numColumns={2}
       columnWrapperClassName="gap-7"
       contentContainerClassName="gap-6 px-5 pt-5 pb-32"
-      ListEmptyComponent={() => !loading && <Text>No result</Text>}
+      ListEmptyComponent={() => !loading && <EmptySearch/>}
       />
     </SafeAreaView>
   )

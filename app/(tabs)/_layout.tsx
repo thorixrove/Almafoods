@@ -1,13 +1,26 @@
 import { Redirect, Tabs} from "expo-router";
 import useAuthStore from "../../store/auth.store";
+import { useCartStore } from "../../store/cart.store";
 import { View, Text, Image} from "react-native";
 import cn from "clsx"
 import { TabBarIconProps } from "../../type";
 import { images } from "../../constants";
 
-const TabBarIcon = ({ focused, icon, title}: TabBarIconProps) => (
+type TabBarIconWithBadgeProps = TabBarIconProps & { badge?: number }
+
+const TabBarIcon = ({ focused, icon, title, badge}: TabBarIconWithBadgeProps) => (
    <View className="tab-icon">
-      <Image source={icon} className="size-7" resizeMode="contain" tintColor={focused ? '#FE8C00' : '#5D5F6D'}/>
+      <View className="relative">
+         <Image source={icon} className="size-7" resizeMode="contain" tintColor={focused ? '#FE8C00' : '#5D5F6D'}/>
+
+         {!!badge && badge > 0 && (
+            <View className="absolute -top-2 -right-2 min-w-[16px] h-4 px-1 rounded-full bg-primary items-center justify-center">
+               <Text className="text-white text-[10px] font-bold">
+                  {badge > 9 ? "9+" : badge}
+               </Text>
+            </View>
+         )}
+      </View>
       <Text className={cn("text-sm font-bold", focused ? "text-primary":"text-gray-20")}>
          {title}
       </Text>
@@ -16,7 +29,8 @@ const TabBarIcon = ({ focused, icon, title}: TabBarIconProps) => (
 
 // CARA MSUK KE HOME SCREEN    const isAuthenticated = true
 export default function TabLayout() {
-   const { isAuthenticated} = useAuthStore() 
+   const { isAuthenticated} = useAuthStore()
+   const totalCartItems = useCartStore((state) => state.getTotalItems())
 
    if(!isAuthenticated) return <Redirect href="/sign-in"/>
 
@@ -59,7 +73,7 @@ export default function TabLayout() {
          name="cart"
          options={{
             title: "Cart",
-            tabBarIcon: ({focused}) => <TabBarIcon title="Cart" icon={images.bag} focused={focused}/>
+            tabBarIcon: ({focused}) => <TabBarIcon title="Cart" icon={images.bag} focused={focused} badge={totalCartItems}/>
          }}
          />
          <Tabs.Screen
